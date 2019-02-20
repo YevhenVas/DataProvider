@@ -8,6 +8,12 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
 
 public class MainTest
 {
@@ -37,13 +43,36 @@ public class MainTest
     //TODO: Напишите @DataProvider метод
     // метод должен считать данные из файла deviceList.txt и привести их к типу Object[]
     // справка для чтения файла: https://stackoverflow.com/questions/2977075/java-how-to-read-a-txt-file-to-an-array-of-strings
+    @DataProvider
+    public Object [] deviceList () throws FileNotFoundException {
+        Scanner sc = new Scanner(new File("deviceList.txt"));
+        List<String> lines = new ArrayList<String>();
+        while (sc.hasNextLine()) {
+            lines.add(sc.nextLine());
+        }
 
+        String[] arr = lines.toArray(new String[0]);
+        return arr;
+    }
 
     //TODO: Перепишите тест testGoogleSearch с использованием @DataProvider
     // Тест должен выполнится для каждого девайса из списка в deviceList.txt
 
-    @Test()
-    public void testGoogleSearch() throws InterruptedException {
+    @Test(dataProvider = "deviceList")
+    public void testGoogleSearch(String inputString) throws InterruptedException {
+        WebDriver driver = Main.getDriver(inputString);
+        System.out.println("Test device" + inputString);
+        driver.get("http://www.google.com/xhtml");
+        Thread.sleep(3000);
+
+        WebElement searchBox =driver.findElement(By.name("q"));
+        searchBox.sendKeys("automation");
+        searchBox.submit();
+        Thread.sleep(3000);
+
+        driver.quit();
+    }
+   /* public void testGoogleSearch() throws InterruptedException {
         //Передаём девайс для эмуляции и создаём драйвер
         WebDriver driver = Main.getDriver("Nexus 10");
 
@@ -56,6 +85,7 @@ public class MainTest
         Thread.sleep(3000);
 
         driver.quit();
-    }
+    }*/
+
 
 }
